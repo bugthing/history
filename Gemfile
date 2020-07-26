@@ -33,7 +33,8 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'
   gem 'rspec-mocks'
-  gem 'pry-byebug'
+  #gem 'pry-byebug'
+  gem 'rails_event_store-rspec'
 end
 
 group :development do

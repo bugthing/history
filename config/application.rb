@@ -8,6 +8,7 @@ Bundler.require(*Rails.groups)
 
 module History
   class Application < Rails::Application
+    config.paths.add 'subscription/lib', eager_load: true
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
