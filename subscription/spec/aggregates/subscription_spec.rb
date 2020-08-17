@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 
-RSpec.describe Subscription::Aggregates::Root do
+RSpec.describe Subscription::Aggregates::Subscription do
   subject(:aggregate) { described_class.new(email: email) }
 
   let(:email) { 'ben@example.com' }

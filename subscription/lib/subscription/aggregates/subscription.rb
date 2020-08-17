@@ -1,6 +1,6 @@
 module Subscription
   module Aggregates
-    class Root
+    class Subscription
       include AggregateRoot
 
       def initialize(email:)

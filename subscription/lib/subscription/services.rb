@@ -2,7 +2,7 @@ module Subscription
   class Services
     def sign_up(**args)
       command = init_command(Commands::SignUp, **args)
-      Aggregates::Root.new(email: command.email).sign_up
+      Aggregates::Subscription.new(email: command.email).sign_up
     end
 
     private
