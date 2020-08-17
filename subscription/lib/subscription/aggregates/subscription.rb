@@ -1,7 +1,6 @@
 module Subscription
   module Aggregates
     class Subscription
-      include AggregateRoot
 
       def initialize(email:)
         @email = email
@@ -45,6 +44,18 @@ module Subscription
 
       def apply_subscription_cancelled(event)
         @cancelled_at = event.data[:cancelled_at]
+      end
+
+      private
+
+      HANDLERS = {
+        "Subscription::Events::SubscriptionSignedUpTo" => :apply_subscription_signed_up_to,
+        "Subscription::Events::SubscriptionUpgraded" => :apply_subscription_upgraded,
+        "Subscription::Events::SubscriptionCancelled" => :apply_subscription_cancelled
+      }.freeze
+
+      def apply(event)
+        send(HANDLERS.fetch(event.event_type), event)
       end
     end
   end
