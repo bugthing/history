@@ -46,6 +46,9 @@ module Subscription
         @cancelled_at = event.data[:cancelled_at]
       end
 
+      def unpublished_events
+        @unpublished_events ||= []
+      end
       private
 
       HANDLERS = {
@@ -56,7 +59,9 @@ module Subscription
 
       def apply(event)
         send(HANDLERS.fetch(event.event_type), event)
+        unpublished_events << event
       end
+
     end
   end
 end
