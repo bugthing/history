@@ -15,7 +15,7 @@ RSpec.describe 'Ordering, paying and fulfilling'do
     Fulfillment::Commands::ScanOrderItem.call(order_id: order_id, barcode: '002')
 
     expect(
-      Order::OrderItems.where(order_id: order_id).pluck(:state).first
+      Orders::ReadModels::OrderItems.where(order_id: order_id).pluck(:state).first
     ).to eq 'fulfilled'
   end
 end
