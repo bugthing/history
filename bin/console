@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/application.rb'
+
+width30 = Integer(TTY::Screen.width * 0.3)
+width70 = TTY::Screen.width - width30
+height =  TTY::Screen.height - 2
+
+# clear the screen
+puts "\e[H\e[2J"
+
+cursor = TTY::Cursor
+prompt = TTY::Prompt.new
+
+Thread.new do
+  loop do
+    box_right = TTY::Box.frame width: width30, height: height, padding: 0, align: :center, top: 0, left: width70 do
+      <<~CONTENT
+        #{Time.now}
+        This is some of the content that goes into the box
+        This is some of the content that goes into the box
+        This is some of the content that goes into the box
+        This is some of the content that goes into the box
+      CONTENT
+    end 
+    print box_right
+  cursor.move_to(0, TTY::Screen.height - 1)
+    sleep 1
+  end 
+end 
+
+@lines = []
+line = ''
+begin
+  @lines << line.chomp
+  box_left = TTY::Box.frame width: width70, height: height, padding: 0, align: :center, top: 0, left: 0 do
+    #@lines.join("\n")
+    'hi'
+  end
+  print box_left
+  cursor.move_to(0, TTY::Screen.height - 1)
+end while line = prompt.ask("Command>")
+
