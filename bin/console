@@ -1,43 +1,50 @@
 #!/usr/bin/env ruby
 
+require 'irb'
 require_relative '../lib/application.rb'
 
-width30 = Integer(TTY::Screen.width * 0.3)
-width70 = TTY::Screen.width - width30
-height =  TTY::Screen.height - 2
+box_width30 = Integer(TTY::Screen.width * 0.3)
+box_width70 = TTY::Screen.width - box_width30
+box_height =  TTY::Screen.height - 4
+display_line_count = box_height - 2
 
 # clear the screen
 puts "\e[H\e[2J"
 
+pastel = Pastel.new
 cursor = TTY::Cursor
 prompt = TTY::Prompt.new
 
-Thread.new do
-  loop do
-    box_right = TTY::Box.frame width: width30, height: height, padding: 0, align: :center, top: 0, left: width70 do
-      <<~CONTENT
-        #{Time.now}
-        This is some of the content that goes into the box
-        This is some of the content that goes into the box
-        This is some of the content that goes into the box
-        This is some of the content that goes into the box
-      CONTENT
-    end 
-    print box_right
-  cursor.move_to(0, TTY::Screen.height - 1)
-    sleep 1
-  end 
-end 
+IRB.conf[:ECHO] = false
+IRB.setup(__FILE__, argv: [])
+workspace = IRB::WorkSpace.new(self)
+binding_irb = IRB::Irb.new(workspace)
 
-@lines = []
-line = ''
+@lines_left = []
+@lines_right = []
 begin
-  @lines << line.chomp
-  box_left = TTY::Box.frame width: width70, height: height, padding: 0, align: :center, top: 0, left: 0 do
-    #@lines.join("\n")
-    'hi'
+  box_right = TTY::Box.frame width: box_width30, height: box_height, padding: 0, align: :center, top: 0, left: box_width70 do
+    @lines_right.last(display_line_count).join("\n")
+  end
+  print box_right
+
+  box_left = TTY::Box.frame width: box_width70, height: box_height, padding: 0, align: :center, top: 0, left: 0 do
+    @lines_left.last(display_line_count).join("\n")
   end
   print box_left
-  cursor.move_to(0, TTY::Screen.height - 1)
-end while line = prompt.ask("Command>")
+  print "\n"
 
+  print cursor.clear_line
+  command = prompt.ask('Command>')
+
+  @lines_left << pastel.blue(command) +
+                 pastel.yellow(' => ')
+
+  result = binding_irb.context.evaluate(command, 1)
+  @lines_left.last.concat(pastel.green(result.inspect))
+
+rescue => e
+  @lines_left.last.concat(pastel.red('ERR:' + e.inspect))
+ensure
+  @lines_left.last.concat(' ')
+end while 1 == 1

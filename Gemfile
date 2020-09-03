@@ -9,3 +9,4 @@ gem 'tty-box'
 gem 'tty-prompt'
 gem 'tty-cursor'
 gem 'tty-screen'
+gem "pastel"

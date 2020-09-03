@@ -46,6 +46,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pastel
   rspec
   tty
   tty-box
