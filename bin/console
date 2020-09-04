@@ -8,6 +8,24 @@ box_width70 = TTY::Screen.width - box_width30
 box_height =  TTY::Screen.height - 4
 display_line_count = box_height - 2
 
+
+#require "curses"
+#Curses.init_screen
+#win = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
+#win_left = win.subwin(box_height, box_width70, 0, 0)
+#win_right = win.subwin(box_height, box_width30, 0, box_width70)
+#win_left.box("|", "-")
+#win_right.box("|", "-")
+#win_left.setpos(2,3)
+#win_left.addstr('lefttty mc left left')
+#win_left.refresh
+#win_right.setpos(2,3)
+#win_right.addstr('righty right')
+#win_right.refresh
+#win.getch
+#win.close
+#exit
+
 # clear the screen
 puts "\e[H\e[2J"
 
