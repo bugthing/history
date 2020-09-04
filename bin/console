@@ -23,8 +23,12 @@ binding_irb = IRB::Irb.new(workspace)
 @lines_left = []
 @lines_right = []
 begin
+
+  @lines_right = Application.event_store.read.to_a
   box_right = TTY::Box.frame width: box_width30, height: box_height, padding: 0, align: :center, top: 0, left: box_width70 do
-    @lines_right.last(display_line_count).join("\n")
+    @lines_right.last(display_line_count).map { |e|
+      "#{pastel.blue(e.class.name, ' ', pastel.green(e.metadata[:timestamp]), ' ', pastel.yellow(e.data))} } "
+    }.join("\n")
   end
   print box_right
 
@@ -32,8 +36,8 @@ begin
     @lines_left.last(display_line_count).join("\n")
   end
   print box_left
-  print "\n"
 
+  print "\n"
   print cursor.clear_line
   command = prompt.ask('Command>')
 

@@ -1,8 +1,23 @@
 # Payments & Fulfillment
 
+## Usage
+
+You need to setup db first
+
+    export DATABASE_URL=sqlite://./tmp/db.sqlite
+    bundle exec rake -T 
+    bundle exec rake db:setup
+    bundle exec rake db:migrate
+
+You can use the console like so:
+
+    ./bin/console
+
+You can call service objects (any ruby code infact) and view the events
+
 ## Order
 
-Handle the building or an order which can be paid for and fulfilled.
+Handle the building of an order which can be paid for and fulfilled.
 
 ### Subscription
 
