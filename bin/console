@@ -1,72 +1,122 @@
 #!/usr/bin/env ruby
 
-require 'irb'
 require_relative '../lib/application.rb'
+require 'irb'
 
-box_width30 = Integer(TTY::Screen.width * 0.3)
-box_width70 = TTY::Screen.width - box_width30
-box_height =  TTY::Screen.height - 4
-display_line_count = box_height - 2
+module Application
+  class Window
 
+    Lines = Class.new(Array) do
+      attr_reader :max_length
+      def <<(item)
+        shift if max_length && (length + 1) > max_length
+        super(item)
+      end
+    end
 
-#require "curses"
-#Curses.init_screen
-#win = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
-#win_left = win.subwin(box_height, box_width70, 0, 0)
-#win_right = win.subwin(box_height, box_width30, 0, box_width70)
-#win_left.box("|", "-")
-#win_right.box("|", "-")
-#win_left.setpos(2,3)
-#win_left.addstr('lefttty mc left left')
-#win_left.refresh
-#win_right.setpos(2,3)
-#win_right.addstr('righty right')
-#win_right.refresh
-#win.getch
-#win.close
-#exit
+    def initialize
+      Curses.init_screen
+      Curses.start_color
+      Curses.cbreak
+      Curses.curs_set 0
+      Curses.noecho
 
-# clear the screen
-puts "\e[H\e[2J"
+      @win = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
+      @win_left = win.subwin(win_top_height, win_top_width70, 0, 0)
+      @win_right = win.subwin(win_top_height, win_top_width30, 0, win_top_width70)
+      @win_bottom = win.subwin(4, Curses.cols, win_top_height, 0)
 
-pastel = Pastel.new
-cursor = TTY::Cursor
-prompt = TTY::Prompt.new
+      IRB.conf[:ECHO] = false
+      IRB.setup(__FILE__, argv: [])
+      workspace = IRB::WorkSpace.new(self)
+      @repl = IRB::Irb.new(workspace)
 
-IRB.conf[:ECHO] = false
-IRB.setup(__FILE__, argv: [])
-workspace = IRB::WorkSpace.new(self)
-binding_irb = IRB::Irb.new(workspace)
+      @lines_left = Lines.new
+      @lines_right = Lines.new
+      @command = ''
+    end
 
-@lines_left = []
-@lines_right = []
+    attr_reader :win, :win_left, :win_right, :win_bottom, :lines_left, :lines_right, :repl
+
+    def win_top_width30
+      Integer(Curses.cols * 0.3)
+    end
+
+    def win_top_width70
+      Curses.cols - win_top_width30
+    end
+
+    def win_top_height
+      Curses.lines - 4
+    end
+
+    def handle_keyboard_input
+      e = win_bottom.getch
+      case e
+      when 10
+        execute_command
+        @command = ''
+      else
+        @command << e
+      end
+      show_bottom(@command)
+    end
+
+    def show_left(line)
+      lines_left << line
+      draw(win_left, lines_left, 0)
+    end
+
+    def show_right(line)
+      lines_right << line
+      draw(win_right, lines_right, win_top_width70)
+    end
+
+    def show_bottom(line)
+      win_bottom.clear
+      win_bottom.setpos(1, 2)
+      win_bottom.addstr(line)
+      win_bottom.box("|", "-")
+      win_bottom.refresh
+    end
+
+    def teardown
+      Curses.close_screen
+    end
+
+    private
+
+    def execute_command
+      result = repl.context.evaluate(@command, 1)
+      show_left("#{@command} => #{result}")
+    rescue => e
+      show_left("#{@command} => ERR: #{e.inspect}")
+    end
+
+    def draw(window, lines, xaxis)
+      window.clear
+      lines.each_with_index do |line, idx|
+        window.setpos((idx + 1), 2)
+        window.addstr(line)
+      end
+      window.box("|", "-")
+      window.refresh
+    end
+  end
+end
+
+win = Application::Window.new
+win.show_left("Commands and return values go here")
+win.show_right("Events info goes here")
+win.show_bottom('Commands appear here')
 begin
 
-  @lines_right = Application.event_store.read.to_a
-  box_right = TTY::Box.frame width: box_width30, height: box_height, padding: 0, align: :center, top: 0, left: box_width70 do
-    @lines_right.last(display_line_count).map { |e|
-      "#{pastel.blue(e.class.name, ' ', pastel.green(e.metadata[:timestamp]), ' ', pastel.yellow(e.data))} } "
-    }.join("\n")
+  # show events
+  Application.event_store.read.each do |e|
+    win.show_right("#{e.class.name} #{e.metadata[:timestamp]} #{e.data}")
   end
-  print box_right
 
-  box_left = TTY::Box.frame width: box_width70, height: box_height, padding: 0, align: :center, top: 0, left: 0 do
-    @lines_left.last(display_line_count).join("\n")
-  end
-  print box_left
-
-  print "\n"
-  print cursor.clear_line
-  command = prompt.ask('Command>')
-
-  @lines_left << pastel.blue(command) +
-                 pastel.yellow(' => ')
-
-  result = binding_irb.context.evaluate(command, 1)
-  @lines_left.last.concat(pastel.green(result.inspect))
-
-rescue => e
-  @lines_left.last.concat(pastel.red('ERR:' + e.inspect))
-ensure
-  @lines_left.last.concat(' ')
+  win.handle_keyboard_input
 end while 1 == 1
+
+win.teardown
