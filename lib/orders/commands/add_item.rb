@@ -1,9 +1,14 @@
 module Orders
   module Commands
-    class AddItem
-      def self.call(order_id:, barcode:, pence:)
+    class AddItem < Command
 
-      end
+      aggregate Orders::Order
+      stream_prefix 'Order'
+      ident_attr :order_id
+
+      attribute :order_id, Types::Integer
+      attribute :barcode, Types::String
+      attribute :pence, Types::Integer
     end
   end
 end

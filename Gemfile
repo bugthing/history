@@ -10,4 +10,5 @@ gem 'ruby_event_store-rom', require: 'ruby_event_store/rom/sql'
 gem 'sqlite3'
 gem 'rake'
 gem 'curses'
-
+gem 'aggregate_root'
+gem 'pry'

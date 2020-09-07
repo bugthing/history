@@ -12,16 +12,15 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
 end
 
-require 'rake'
-load File.expand_path(File.dirname(__FILE__) + '/../Rakefile')
+require_relative '../lib/application'
+
 RSpec.configure do |config|
   config.around do |example|
     orginal_url = ENV['DATABASE_URL']
-    ENV['DATABASE_URL'] = 'sqlite::memory:'
-    Rake::Task['db:reset'].invoke
+    ENV['DATABASE_URL'] = 'sqlite://./tmp/test_db.sqlite'
+    rom = ROM.container(:sql, ['sqlite://./tmp/test_db.sqlite'])
+    rom.gateways[:default].run_migrations
     example.run
-    ENV['DATABASE_URL'] = orginal_url
+    #ENV['DATABASE_URL'] = orginal_url
   end
 end
-
-require_relative '../lib/application'
