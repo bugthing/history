@@ -15,7 +15,7 @@ You can use the console like so:
 
 You can call service objects (any ruby code infact) and view the events
 
-## Order
+## Orders
 
 Handle the building of an order which can be paid for and fulfilled.
 
