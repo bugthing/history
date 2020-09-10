@@ -25,8 +25,9 @@ class Command < Dry::Struct
   end
 
   def call
+    agg_method = self.class.name.split('::').last.gsub(/(.)([A-Z])/,'\1_\2').downcase
     with_aggregate(id) do |agg|
-      agg.add_item(self)
+      agg.send(agg_method, self)
     end 
   end
 

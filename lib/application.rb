@@ -21,6 +21,7 @@ module Application
         end
         config.commands(:order_items) do
           define(:create)
+          define(:update)
         end
       end
 
