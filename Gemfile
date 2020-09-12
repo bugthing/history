@@ -2,7 +2,12 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.0'
+gem 'aggregate_root'
 gem 'zeitwerk'
+gem 'pry'
+gem 'dry-system'
+gem 'dotenv'
+gem 'rom'
 gem 'rspec'
 gem 'ruby_event_store'
 gem 'rom-sql'

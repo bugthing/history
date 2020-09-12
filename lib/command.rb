@@ -21,7 +21,7 @@ class Command < Dry::Struct
   end
 
   def repository
-    @repository ||= AggregateRoot::Repository.new(Application.event_store)
+    @repository ||= AggregateRoot::Repository.new(App[:event_store])
   end
 
   def call

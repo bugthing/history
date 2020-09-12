@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/application.rb'
+require_relative '../system/container'
 require 'irb'
+require 'curses'
 
 module Application
   class Window
@@ -112,7 +113,7 @@ win.show_bottom('Commands appear here')
 begin
 
   # show events
-  Application.event_store.read.each do |e|
+  App[:event_store].read.each do |e|
     win.show_right("#{e.class.name} #{e.metadata[:timestamp]} #{e.data}")
   end
 

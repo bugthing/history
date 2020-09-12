@@ -8,7 +8,7 @@ RSpec.describe 'Ordering, paying and fulfilling'do
     Services::Shop.scan(order_id, '002')
 
     expect(
-      Application.rom_container.relations[:order_items].by_order_id(order_id).first&.fetch(:state)
+      App[:db].relations[:order_items].by_order_id(order_id).first&.fetch(:state)
     ).to eq 'fulfilled'
   end
 end

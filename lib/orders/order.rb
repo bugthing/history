@@ -1,6 +1,7 @@
+
 module Orders
   class Order
-    include AggregateRoot
+    include ::AggregateRoot
 
     Error = Class.new(StandardError)
 
