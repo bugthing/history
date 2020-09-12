@@ -16,13 +16,7 @@ module Application
     @event_store ||= begin
 
       RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL']) do |config|
-        config.relation(:order_items) do
-          schema(infer: true)
-        end
-        config.commands(:order_items) do
-          define(:create)
-          define(:update)
-        end
+        config.register_relation(Orders::ReadModels::OrderItems)
       end
 
       RubyEventStore::Client.new(
@@ -31,9 +25,8 @@ module Application
     end
   end
 
-  def self.order_items_repo
-    container = RubyEventStore::ROM.env.rom_container
-    Orders::ReadModels::OrderItems.new(container)
+  def self.rom_container
+    RubyEventStore::ROM.env.rom_container
   end
 
   def self.test

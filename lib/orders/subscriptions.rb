@@ -17,20 +17,15 @@ module Orders
     end
 
     Application.event_store.subscribe(to: [Orders::Events::AddOrderItemSucceeded]) do |event|
-      create_order_items = RubyEventStore::ROM.env.rom_container.commands[:order_items][:create]
-      create_order_items.call([{ order_id: event.data[:order_id],
-                          barcode: event.data[:barcode],
-                          pence: event.data[:pence],
-                          state: 'new' }])
+      Application.rom_container.relations[:order_items].create(
+        event.data[:order_id],
+        event.data[:barcode],
+        event.data[:pence]
+      )
     end
 
     Application.event_store.subscribe(to: [Fulfillment::Events::OrderFulfillmentComplete]) do |event|
-
-      # Figure out how to do updates in RomRB
-      #update_order_items = RubyEventStore::ROM.env.rom_container.commands[:order_items][:update]
-      #update_order_items.(order_id: event.data[:order_id]).call(
-      #  state: 'fulfilled'
-      #)
+      Application.rom_container.relations[:order_items].set_fulfilled(event.data[:order_id])
     end
   end
 end
