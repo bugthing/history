@@ -21,6 +21,9 @@ module Application
       Curses.cbreak
       Curses.curs_set 0
       Curses.noecho
+      Curses.init_pair(Curses::COLOR_BLUE,Curses::COLOR_BLUE,Curses::COLOR_BLACK)
+      Curses.init_pair(Curses::COLOR_GREEN,Curses::COLOR_GREEN,Curses::COLOR_BLACK)
+      Curses.init_pair(Curses::COLOR_RED,Curses::COLOR_RED,Curses::COLOR_BLACK)
 
       @win = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
       @win_left = win.subwin(win_top_height, win_top_width70, 0, 0)
@@ -40,7 +43,7 @@ module Application
     attr_reader :win, :win_left, :win_right, :win_bottom, :lines_left, :lines_right, :repl
 
     def win_top_width30
-      Integer(Curses.cols * 0.3)
+      Integer(Curses.cols * 0.6)
     end
 
     def win_top_width70
@@ -53,10 +56,13 @@ module Application
 
     def handle_keyboard_input
       e = win_bottom.getch
+      #require 'pry'; binding.pry
       case e
       when 10
         execute_command
         @command = ''
+      when 127
+        @command.chop!
       else
         @command << e
       end
@@ -83,13 +89,16 @@ module Application
 
     def teardown
       Curses.close_screen
+      Kernel.exit(0)
     end
 
     private
 
     def execute_command
+      teardown if @command == 'q'
       result = repl.context.evaluate(@command, 1)
-      show_left("#{@command} => #{result}")
+      #show_left("#{@command} => #{result}")
+      show_left([@command, ' => ', result])
     rescue => e
       show_left("#{@command} => ERR: #{e.inspect}")
     end
@@ -98,7 +107,17 @@ module Application
       window.clear
       lines.each_with_index do |line, idx|
         window.setpos((idx + 1), 2)
-        window.addstr(line)
+
+        line_part1, line_part2, line_part3 = *line
+
+        window.attron(Curses.color_pair(Curses::COLOR_BLUE)|Curses::A_NORMAL) do
+          window.addstr(line_part1.to_s)
+        end
+        window.addstr(line_part2.to_s)
+        window.attron(Curses.color_pair(Curses::COLOR_GREEN)|Curses::A_NORMAL) do
+          window.addstr(line_part3.to_s)
+        end
+
       end
       window.box("|", "-")
       window.refresh
@@ -114,7 +133,7 @@ begin
 
   # show events
   App[:event_store].read.each do |e|
-    win.show_right("#{e.class.name} #{e.metadata[:timestamp]} #{e.data}")
+    win.show_right([e.class.name, " #{e.metadata[:timestamp]} ", e.data])
   end
 
   win.handle_keyboard_input
