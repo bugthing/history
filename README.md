@@ -1,5 +1,7 @@
 # Payments & Fulfillment
 
+Here is small example Ruby app of some DDD based flow for Paymente and Fulfillment.
+
 ## Usage
 
 You need to setup db first
@@ -9,75 +11,81 @@ You need to setup db first
     bundle exec rake db:setup
     bundle exec rake db:migrate
 
-You can use the console like so:
+You can run some specs:
+
+    bundle exec rspec
+
+or you can use the console like so:
 
     ./bin/console
 
 You can call service objects (any ruby code infact) and view the events
 
-## Orders
+## NOTES
+
+### Orders
 
 Handle the building of an order which can be paid for and fulfilled.
 
-### Subscription
+#### Subscription
 
 Payments::ChargeCreditCardSucceeded => MarkOrderPaid
 Fulfilment::ReleaseOrderSucceeded => MarkOrderFulfilled
 
-### Commands
+#### Commands
 
 AddOrderItem
 PlaceOrder
 MarkOrderPaid
 MarkOrderFulfilled
 
-### Aggregate
+#### Aggregate
 
 Order
 
-### Events
+#### Events
 
 AddOrderItemSucceeded
 AddOrderItemFailed
 PlaceOrderSucceeded
 PlaceOrderFailed
 
-### Read Models
+#### Read Models
 
 OrderLines
 
-## Fulfillment
+### Fulfillment
 
 Handle the preparation of order so they can be fulfilled.
 
-### Subscription
+#### Subscription
 
 Order::MarkOrderPaidSucceeded => PrepareOrder
 
-### Commands
+#### Commands
 
 PrepareOrder
 ScanOrderItem
 ReleaseOrder
 
-### Aggregate
+#### Aggregate
 
 OrderFulfillment
 
-### Events
+#### Events
 
 PrepareOrderSucceeded
 PrepareOrderFailed
 
-### Read Models
+#### Read Models
 
 Fulfilment
 
-## Payments
+### Payments
 
 Handle the processing of credit card payments for orders.
 
-### Commands
+#### Commands
 
 ChargeCreditCard
   number
@@ -97,11 +105,11 @@ VoidAuthorization
 
 RefundPayment
 
-### Aggregate
+#### Aggregate
 
 CreditCardPayment
 
-### Events
+#### Events
 
 ChargeCreditCardSucceeded
 ChargeCreditCardFailed
@@ -114,6 +122,6 @@ VoidAuthorizationFailed
 RefundPaymentSucceeded
 RefundPaymentFailed
 
-### Read Models
+#### Read Models
 
 Transaction

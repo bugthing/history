@@ -1,5 +1,5 @@
-module Orders
-  class Subscriptions
+App.boot(:subscriptions) do
+  start do
     App[:event_store].subscribe(to: [Payments::Events::ChargeCreditCardSucceeded]) do |event|
       Orders::Commands::RecordAmountPaid.call(
         order_id: event.data[:order_id],

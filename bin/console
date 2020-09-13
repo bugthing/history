@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative '../system/container'
+require_relative '../system/boot'
 require 'irb'
 require 'curses'
 
@@ -56,7 +56,6 @@ module Application
 
     def handle_keyboard_input
       e = win_bottom.getch
-      #require 'pry'; binding.pry
       case e
       when 10
         execute_command

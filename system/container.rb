@@ -1,4 +1,3 @@
-require_relative 'boot'
 require 'dry/system/container'
 
 class App < Dry::System::Container
@@ -9,5 +8,3 @@ class App < Dry::System::Container
   load_paths!('lib')
 end
 
-# initiat subscriptions
-App['orders.subscriptions']

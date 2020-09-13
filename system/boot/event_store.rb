@@ -5,8 +5,8 @@ App.boot(:event_store) do
     require 'ruby_event_store/rom/sql'
   end
 
-  start do
-    RubyEventStore::ROM.env = RubyEventStore::ROM.setup(:sql, ENV['DATABASE_URL'])
+  start do |app|
+    RubyEventStore::ROM.env = RubyEventStore::ROM.setup(app['db.config'])
 
     client = RubyEventStore::Client.new(
       repository: RubyEventStore::ROM::EventRepository.new

@@ -4,15 +4,15 @@ class Command < Dry::Struct
   end
 
   def self.stream_prefix(str)
-    @@stream_prefix = str
+    self.instance_variable_set(:@stream_prefix, str)
   end
 
   def self.aggregate(klass)
-    @@aggregate = klass
+    self.instance_variable_set(:@aggregate, klass)
   end
 
   def self.ident_attr(attr)
-    @@ident_attr = attr
+    self.instance_variable_set(:@ident_attr, attr)
   end
 
   def self.call(**args)
@@ -28,32 +28,26 @@ class Command < Dry::Struct
     agg_method = self.class.name.split('::').last.gsub(/(.)([A-Z])/,'\1_\2').downcase
     with_aggregate(id) do |agg|
       agg.send(agg_method, self)
-    end 
+    end
   end
 
   def valid?
+    # TODO: user dry schema to validate the command 
     true
-    #attributes = to_hash
-    #schema = WorldContract.new.call(attributes)
-    #@errors = schema.errors(locale: I18n.locale).to_h.values.flatten
-    #return false unless errors.empty?
-    #@world = attributes[:id] ? World.find_by(id: attributes[:id]) : World.new
-    #world.attributes = attributes.except(:id)
-    #world.save
   end
 
   def id
-    public_send @@ident_attr
+    public_send self.class.instance_variable_get(:@ident_attr)
   end
 
   private
 
   def aggregate
-    @@aggregate
+    self.class.instance_variable_get(:@aggregate)
   end
 
   def stream_name(id)
-    "#{@@stream_prefix}$#{id}"
+    "#{self.class.instance_variable_get(:@stream_prefix)}$#{id}"
   end
 
   def with_aggregate(id, &block)
